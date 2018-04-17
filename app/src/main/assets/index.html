@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JsBridge Demo</title>
+    <script type="text/javascript" src="https://res.wx.qq.com/mmbizwap/zh_CN/htmledition/js/vconsole/2.5.1/vconsole.min.js"></script>
+</head>
+<body>
+<style type="text/css">
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    ul > li {
+        display: block;
+        text-align: center;
+        list-style: none;
+        background: #ccc;
+        margin: 10px;
+        padding: 8px;
+    }
+
+    #image-preview {
+        max-width: 200px;
+    }
+</style>
+<ul id="ul">
+    <li>jsbridge测试</li>
+    <li>开始扫描</li>
+    <li>停止扫描</li>
+    <li>连续模式</li>
+</ul>
+<h3>扫描结果：</h3>
+<div id='result'></div>
+<img id="image-preview"/>
+<script type="text/javascript">
+    function callFromJava(message){
+        var div = document.getElementById("result");
+        div.innerHTML = message
+    }
+    var ul = document.getElementById("ul");
+    var li = ul.getElementsByTagName("li");
+    for (var i = 0; i < li.length; i++) {
+        li[i].index = i;
+        li[i].onclick = function () {
+            switch (this.index) {
+                case 0:
+                    AndroidFunction.test(); // 测试
+                    break;
+                case 1:
+                    AndroidFunction.start();  //开启
+                    break;
+                case 2:
+                    AndroidFunction.close(); //关闭
+                    break;
+                case 3:
+                    AndroidFunction.scanner(); //连续
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+</script>
+</body>
+</html>
