@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>JsBridge Demo</title>
     <script type="text/javascript" src="https://res.wx.qq.com/mmbizwap/zh_CN/htmledition/js/vconsole/2.5.1/vconsole.min.js"></script>
 </head>
@@ -46,6 +47,7 @@
         li[i].onclick = function () {
             switch (this.index) {
                 case 0:
+                    console.log('test')
                     AndroidFunction.test(); // 测试
                     break;
                 case 1:

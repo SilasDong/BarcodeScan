@@ -1,5 +1,6 @@
 package com.newequator.barcodescan;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
@@ -20,6 +21,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.JsPromptResult;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
@@ -33,63 +35,34 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 
     private WebView Wv;
-    final Handler myHandler = new Handler();
+    private BroadcastReceiver  mReceiver;
 
-    private final static String SCAN_ACTION = "urovo.rcv.message";//扫描结束action
 
-    //private EditText showScanResult;
-    //private Button btn;
-    //private Button mScan;
-    //private Button mClose;
-
-    private Vibrator mVibrator;
-    private ScanManager mScanManager;
-    private SoundPool soundpool = null;
-    private int soundid;
-    private String barcodeStr;
-    private boolean isScaning = false;
-    private BroadcastReceiver mScanReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // TODO Auto-generated method stub
-            isScaning = false;
-            soundpool.play(soundid, 1, 1, 0, 0, 1);
-            //showScanResult.setText("");
-            mVibrator.vibrate(100);
-
-            byte[] barcode = intent.getByteArrayExtra("barocode");
-            //byte[] barcode = intent.getByteArrayExtra("barcode");
-            int barocodelen = intent.getIntExtra("length", 0);
-            byte temp = intent.getByteExtra("barcodeType", (byte) 0);
-            android.util.Log.i("debug", "----codetype--" + temp);
-            barcodeStr = new String(barcode, 0, barocodelen);
-
-            //showScanResult.setText(barcodeStr);
-            javaCallJS(barcodeStr);
-
-        }
-
-    };
-
-    //@Override
-    //protected void onCreate(Bundle savedInstanceState) {
-    //    // TODO Auto-generated method stub
-    //    super.onCreate(savedInstanceState);
-    //    Window window = getWindow();
-    //    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    //    setContentView(R.layout.activity_main);
-    //    mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-    //    setupView();
-    //
-    //}
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initWebView();
+        Intent intent = new Intent ("ACTION_BAR_SCANCFG");
+        intent.putExtra("EXTRA_SCAN_MODE", 3);
+        intent.putExtra("EXTRA_TRIG_MODE", 0);
+        getApplicationContext().sendBroadcast(intent);
+        mReceiver= new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String scanResult_1 = intent.getStringExtra("SCAN_BARCODE1");
+                final String scanStatus = intent.getStringExtra("SCAN_STATE");
+                if ("ok".equals(scanStatus)) {
+                    javaCallJS(scanResult_1);
+                } else {
+
+                }
+            }
+        };
+    }
+
+    @SuppressLint("JavascriptInterface")
+    private void initWebView(){
         Wv = (WebView)findViewById(R.id.webView1);
-        mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        //Window window = getWindow();
-        //window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         final JavaScriptInterface myJavaScriptInterface
                 = new JavaScriptInterface(this);
 
@@ -100,11 +73,11 @@ public class MainActivity extends Activity {
         //设置是否支持缩放，我这里为false，默认为true。
         Wv.getSettings().setSupportZoom(false);
 
-//设置是否显示缩放工具，默认为false
+        //设置是否显示缩放工具，默认为false
         Wv.getSettings().setBuiltInZoomControls(false);
         //设置自适应屏幕
         Wv.getSettings().setUseWideViewPort(true);
-// 缩放至屏幕的大小
+        // 缩放至屏幕的大小
         Wv.getSettings().setLoadWithOverviewMode(true);
         Wv.addJavascriptInterface(myJavaScriptInterface, "AndroidFunction");
         Wv.setWebViewClient(new WebViewClient() {
@@ -150,157 +123,38 @@ public class MainActivity extends Activity {
             }
         });
         Wv.loadUrl("http://driver.signedexpress.com");
-
     }
 
-
-    private void initScan() {
-        // TODO Auto-generated method stub
-        mScanManager = new ScanManager();
-        mScanManager.openScanner();
-
-        mScanManager.switchOutputMode(0);
-        soundpool = new SoundPool(1, AudioManager.STREAM_NOTIFICATION, 100); // MODE_RINGTONE
-        soundid = soundpool.load("/etc/Scan_new.ogg", 1);
+    private void registerReceiver()
+    {
+        IntentFilter mFilter= new IntentFilter("nlscan.action.SCANNER_RESULT");
+        registerReceiver(mReceiver, mFilter);
     }
 
-    private void setupView() {
-        // TODO Auto-generated method stub
-        //showScanResult = (EditText) findViewById(R.id.scan_result);
-        //btn = (Button) findViewById(R.id.manager);
-        //btn.setOnClickListener(new OnClickListener() {
-        //
-        //    @Override
-        //    public void onClick(View arg0) {
-        //        // TODO Auto-generated method stub
-        //        if (mScanManager.getTriggerMode() != Triggering.CONTINUOUS)
-        //            mScanManager.setTriggerMode(Triggering.CONTINUOUS);
-        //    }
-        //});
-
-        //mScan = (Button) findViewById(R.id.scan);
-        //mScan.setOnClickListener(new OnClickListener() {
-        //
-        //    @Override
-        //    public void onClick(View arg0) {
-        //        // TODO Auto-generated method stub
-        //        //if(type == 3)
-        //        mScanManager.stopDecode();
-        //        isScaning = true;
-        //        try {
-        //            Thread.sleep(100);
-        //        } catch (InterruptedException e) {
-        //            // TODO Auto-generated catch block
-        //            e.printStackTrace();
-        //        }
-        //        mScanManager.startDecode();
-        //    }
-        //});
-
-        //mClose = (Button) findViewById(R.id.close);
-        //mClose.setOnClickListener(new OnClickListener() {
-        //
-        //    @Override
-        //    public void onClick(View arg0) {
-        //        // TODO Auto-generated method stub
-        //        // if(isScaning) {
-        //        //  isScaning = false;
-        //        mScanManager.stopDecode();
-        //        //}
-        //    }
-        //});
-
-        //btn.setVisibility(View.GONE);
-
-    }
-
-    @Override
-    protected void onDestroy() {
-        // TODO Auto-generated method stub
-        super.onDestroy();
+    private void unRegisterReceiver()
+    {
+        try {
+            unregisterReceiver(mReceiver);
+        } catch (Exception e) {
+        }
     }
 
     @Override
     protected void onPause() {
-        // TODO Auto-generated method stub
         super.onPause();
-        //if (mScanManager != null) {
-        //    mScanManager.stopDecode();
-        //    isScaning = false;
-        //    unregisterReceiver(mScanReceiver);
-        //}
+        unRegisterReceiver();
     }
 
     @Override
     protected void onResume() {
-        // TODO Auto-generated method stub
         super.onResume();
-        initScan();
-        //showScanResult.setText("");
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(SCAN_ACTION);
-        registerReceiver(mScanReceiver, filter);
-    }
-
-    @Override
-    protected void onStart() {
-        // TODO Auto-generated method stub
-        super.onStart();
+        registerReceiver();
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         // TODO Auto-generated method stub
         return super.onKeyDown(keyCode, event);
-    }
-
-
-    public class JavaScriptInterface {
-        Context mContext;
-
-        JavaScriptInterface(Context c) {
-            mContext = c;
-        }
-
-        public void start(){
-            try{
-                mScanManager.stopDecode();
-                isScaning = true;
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                mScanManager.startDecode();
-                //Toast.makeText(mContext, "开启扫描", Toast.LENGTH_SHORT).show();
-            }catch (Exception ex){
-                Toast.makeText(mContext, "开启扫描失败", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        public void close(){
-            try{
-                mScanManager.stopDecode();
-                //Toast.makeText(mContext, "停止扫描", Toast.LENGTH_SHORT).show();
-            }catch (Exception ex){
-                Toast.makeText(mContext, "停止扫描失败", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        public void scanner(){
-            try{
-                if(mScanManager.getTriggerMode() != Triggering.CONTINUOUS)
-                    mScanManager.setTriggerMode(Triggering.CONTINUOUS);
-                //Toast.makeText(mContext, "连续模式", Toast.LENGTH_SHORT).show();
-            }catch (Exception ex){
-                Toast.makeText(mContext, "开启连续模式失败", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        public void test(){
-            javaCallJS("test");
-        }
     }
 
     public void javaCallJS(final String text){
@@ -311,5 +165,48 @@ public class MainActivity extends Activity {
             }
         });
     }
+
+    public class JavaScriptInterface {
+        Context mContext;
+
+        JavaScriptInterface(Context c) {
+            mContext = c;
+        }
+
+        @JavascriptInterface
+        public void start(){
+            // 广播模式，开始连续模式
+            //Intent intent = new Intent ("ACTION_BAR_SCANCFG");
+            //intent.putExtra("EXTRA_SCAN_MODE", 3);
+            //intent.putExtra("EXTRA_TRIG_MODE", 1);
+            //getApplicationContext().sendBroadcast(intent);
+        }
+
+        @JavascriptInterface
+        public void close(){
+            // 广播模式，关闭连续模式
+
+            Intent intent = new Intent ("ACTION_BAR_SCANCFG");
+            intent.putExtra("EXTRA_SCAN_MODE", 3);
+            intent.putExtra("EXTRA_TRIG_MODE", 0);
+            getApplicationContext().sendBroadcast(intent);
+        }
+
+        @JavascriptInterface
+        public void scanner(){
+            // 广播模式，开始连续模式
+            Intent intent = new Intent ("ACTION_BAR_SCANCFG");
+            intent.putExtra("EXTRA_SCAN_MODE", 3);
+            intent.putExtra("EXTRA_TRIG_MODE", 1);
+            getApplicationContext().sendBroadcast(intent);
+        }
+
+        @JavascriptInterface
+        public void test(){
+            javaCallJS("test");
+        }
+    }
+
+
 
 }
