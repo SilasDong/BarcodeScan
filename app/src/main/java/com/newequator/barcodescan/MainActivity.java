@@ -1,36 +1,23 @@
 package com.newequator.barcodescan;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.IntentFilter;
-import android.media.AudioManager;
-import android.media.SoundPool;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Vibrator;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.device.ScanManager;
-import android.device.scanner.configuration.Triggering;
+import android.content.IntentFilter;
+import android.graphics.PixelFormat;
+import android.net.Uri;
+import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.Window;
-import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
-import android.webkit.JsPromptResult;
-import android.webkit.JsResult;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+import com.tencent.smtt.export.external.interfaces.JsResult ;
+import com.tencent.smtt.sdk.WebChromeClient;
+import com.tencent.smtt.sdk.WebView;
+import com.tencent.smtt.sdk.WebViewClient;
 
 public class MainActivity extends Activity {
 
@@ -62,6 +49,8 @@ public class MainActivity extends Activity {
 
     @SuppressLint("JavascriptInterface")
     private void initWebView(){
+        getWindow().setFormat(PixelFormat.TRANSLUCENT);
+
         Wv = (WebView)findViewById(R.id.webView1);
         final JavaScriptInterface myJavaScriptInterface
                 = new JavaScriptInterface(this);

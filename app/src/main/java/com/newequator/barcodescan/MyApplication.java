@@ -20,5 +20,7 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+        com.tencent.smtt.sdk.WebView webView = new com.tencent.smtt.sdk.WebView(this);
+        int width = webView.getView().getWidth();
     }
 }

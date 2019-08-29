@@ -5,10 +5,10 @@ android {
 //    buildToolsVersion "26.0.2"
     defaultConfig {
         applicationId "com.newequator.barcodescan"
-        minSdkVersion 10
+        minSdkVersion 15
         targetSdkVersion 22
-        versionCode 9
-        versionName "2.0.0"
+        versionCode 10
+        versionName "2.0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -21,6 +21,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api 'com.tencent.tbs.tbssdk:sdk:43697'
 //    compile 'com.apkfuns.jsbridge:jsbridge:2.1.1'
 //    compile 'com.alibaba:fastjson:1.2.35'
 //    compile 'com.android.support:appcompat-v7:23.3.0'
